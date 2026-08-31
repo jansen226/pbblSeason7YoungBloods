@@ -4,28 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beyblade Team Stats</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto space-y-6">
         
-        <!-- Header -->
-        <header class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <header class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b border-slate-800 pb-4">
             <div>
-                <h1 class="text-2xl md:text-3xl font-extrabold text-emerald-400">BBA YoungBloods Tracker</h1>
-                <p class="text-xs md:text-sm text-slate-400">Match & Position Win Rates</p>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-emerald-400">Beyblade X Team Tracker</h1>
+                <p class="text-xs md:text-sm text-slate-400">Match & Position Win Rates (Deployed on Vercel)</p>
             </div>
-            <div class="text-right">
-                <span class="text-xs text-slate-500 uppercase">Team Record</span>
-                <p id="teamSetRecord" class="text-lg md:text-xl font-bold text-slate-200">0W - 0L</p>
+            <div class="flex items-center gap-3 self-end sm:self-auto">
+                <button id="exportDataBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                    📥 Export Data
+                </button>
+                <button id="resetDataBtn" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 text-xs font-semibold px-3 py-1.5 rounded-lg border border-rose-800/40 transition">
+                    🔄 Reset Data
+                </button>
+                <div class="text-right border-l border-slate-800 pl-3">
+                    <span class="text-xs text-slate-500 uppercase">Team Record</span>
+                    <p id="teamSetRecord" class="text-lg md:text-xl font-bold text-slate-200">0W - 0L</p>
+                </div>
             </div>
         </header>
 
-        <!-- Stats Overview Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
                 <p class="text-xs font-semibold text-slate-400 uppercase">Total Matches</p>
@@ -45,22 +49,75 @@
             </div>
         </div>
 
-        <!-- Position Win Rates Section -->
+        <div class="bg-slate-900 border border-indigo-500/30 rounded-xl p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/30 space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                    <h2 class="text-lg font-bold text-indigo-400 flex items-center gap-2">
+                        <span>🛠️</span> Custom Lineup Builder & Matchup Simulator
+                    </h2>
+                    <p class="text-xs text-slate-400">Select a blader for each position to test and project custom squad win rates</p>
+                </div>
+                <button id="autoFillOptimalBtn" type="button" class="bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 font-semibold px-3 py-1.5 rounded-lg text-xs transition self-start md:self-auto">
+                    ⚡ Auto-Fill Optimal Lineup
+                </button>
+            </div>
+
+            <form id="lineupBuilderForm" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Slot 1 (Lead)</label>
+                    <select id="lineupSlot1" class="lineup-select w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Slot 2</label>
+                    <select id="lineupSlot2" class="lineup-select w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Slot 3</label>
+                    <select id="lineupSlot3" class="lineup-select w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Slot 4</label>
+                    <select id="lineupSlot4" class="lineup-select w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Slot 5 (Anchor)</label>
+                    <select id="lineupSlot5" class="lineup-select w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"></select>
+                </div>
+            </form>
+
+            <button id="evaluateLineupBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                Simulate & Evaluate Lineup
+            </button>
+
+            <div id="lineupEvaluationOutput" class="hidden border-t border-slate-800 pt-4 mt-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/80 p-4 rounded-lg border border-slate-800 gap-2 mb-4">
+                    <div>
+                        <span class="text-xs uppercase font-semibold text-slate-400">Projected Squad Match Win Probability</span>
+                        <p id="projectedSetWinRate" class="text-2xl font-extrabold text-indigo-400">0%</p>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <span class="text-xs uppercase font-semibold text-slate-400">Avg Individual Slot Win Rate</span>
+                        <p id="avgSlotWinRate" class="text-lg font-bold text-slate-200">0%</p>
+                    </div>
+                </div>
+
+                <div id="lineupSlotBreakdown" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
+            </div>
+        </div>
+
         <div>
             <h2 class="text-lg font-bold mb-3 text-slate-200">Position Performance</h2>
             <div id="positionCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
         </div>
 
-        <!-- Optimal Lineup Recommendation Card -->
         <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/20">
             <h2 class="text-lg font-bold mb-1 text-emerald-400 flex items-center gap-2">
-                <span>⚡</span> Recommended Optimal Lineup
+                <span>⚡</span> Statistically Optimal Lineup
             </h2>
-            <p class="text-xs text-slate-400 mb-4">Statistically highest win-rate blader for each slot based on historical match performance</p>
+            <p class="text-xs text-slate-400 mb-4">Highest win-rate blader for each slot based on historical match performance</p>
             <div id="optimalLineupContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
         </div>
 
-        <!-- Team Matchup Points Section -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
             <h2 class="text-lg font-bold mb-1 text-slate-200">Team Matchup Points & Scores</h2>
             <p class="text-xs text-slate-400 mb-4">Points scored vs. allowed per opponent match</p>
@@ -79,10 +136,8 @@
             </div>
         </div>
 
-        <!-- Leaderboard & Chart Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Leaderboard Table -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5">
                 <h2 class="text-lg font-bold mb-4 text-slate-200">Blader Leaderboard</h2>
                 <div class="overflow-x-auto">
@@ -101,7 +156,6 @@
                 </div>
             </div>
 
-            <!-- Chart Card -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-center items-center">
                 <h2 class="text-lg font-bold mb-4 text-slate-200 w-full">Win/Loss Ratio</h2>
                 <div class="w-48 h-48">
@@ -110,7 +164,6 @@
             </div>
         </div>
 
-        <!-- Blader vs Position Matrix Section -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
             <h2 class="text-lg font-bold mb-1 text-slate-200">Blader Position Breakdown</h2>
             <p class="text-xs text-slate-400 mb-4">Win rate and record (W-L) per slot position</p>
@@ -131,7 +184,6 @@
             </div>
         </div>
 
-        <!-- Challonge Tournament Bracket Embed -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
             <h2 class="text-lg font-bold mb-1 text-slate-200">Live Tournament Bracket</h2>
             <p class="text-xs text-slate-400 mb-4">PBBL S7 Pilipinas Cup B</p>
@@ -140,18 +192,15 @@
             </div>
         </div>
 
-        <!-- Add Match Form & Recent Logs -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Input Form -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
                 <h2 class="text-lg font-bold mb-4 text-slate-200">Add Match Record</h2>
                 <form id="matchForm" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Blader Name</label>
                         <select id="playerSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                            <!-- Populated dynamically via JS -->
-                        </select>
+                            </select>
                         <input id="newPlayerInput" type="text" placeholder="Enter new blader name" class="hidden mt-2 w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
@@ -179,7 +228,6 @@
                 </form>
             </div>
 
-            <!-- Match Logs -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5">
                 <h2 class="text-lg font-bold mb-4 text-slate-200">Recent Logs</h2>
                 <div class="overflow-x-auto max-h-80">
@@ -201,48 +249,55 @@
 
     </div>
 
-    <!-- Script Block -->
     <script>
-        // Master Team Roster list
-        let teamRoster = ["Dubu", "Jassel", "Jansen", "Jigz", "Karl", "Migz", "Milky", "Robin", "Trinity"];
+        const initialRoster = ["EBaet", "jlanzado", "jlirio", "JBrual", "JRianzares", "MCaibal", "JMinosa", "RSulit", "JCruz"];
 
-        let matchHistory = [
-            { player: "Jassel", position: 1, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "Migz", position: 2, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "Karl", position: 3, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
-            { player: "Milky", position: 4, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "Robin", position: 5, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+        const initialMatches = [
+            { player: "jlanzado", position: 1, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "MCaibal", position: 2, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "JRianzares", position: 3, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            { player: "JMinosa", position: 4, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "RSulit", position: 5, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
             
-            { player: "Robin", position: 1, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Jassel", position: 2, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Dubu", position: 3, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Jansen", position: 4, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Trinity", position: 5, opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
+            { player: "RSulit", position: 1, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "jlanzado", position: 2, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "EBaet", position: 3, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "jlirio", position: 4, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "JCruz", position: 5, opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
             
-            { player: "Dubu", position: 1, opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "Jansen", position: 2, opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "Jigz", position: 3, opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "Trinity", position: 4, opponent: "Anonymous Bladers PH", result: "Win" },
-            { player: "Karl", position: 5, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "EBaet", position: 1, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "jlirio", position: 2, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "JBrual", position: 3, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "JCruz", position: 4, opponent: "Anonymous Bladers PH", result: "Win" },
+            { player: "JRianzares", position: 5, opponent: "Anonymous Bladers PH", result: "Loss" },
 
-            { player: "Jassel", position: 1, opponent: "Garuda Phoenix", result: "Win" },
-            { player: "Robin", position: 2, opponent: "Garuda Phoenix", result: "Win" },
-            { player: "Migz", position: 3, opponent: "Garuda Phoenix", result: "Win" },
-            { player: "Milky", position: 4, opponent: "Garuda Phoenix", result: "Loss" },
-            { player: "Jigz", position: 5, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "jlanzado", position: 1, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "RSulit", position: 2, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "MCaibal", position: 3, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "JMinosa", position: 4, opponent: "Garuda Phoenix", result: "Loss" },
+            { player: "JBrual", position: 5, opponent: "Garuda Phoenix", result: "Win" },
 
-            { player: "Jassel", position: 1, opponent: "Ignited Fury", result: "Loss" },
-            { player: "Robin", position: 2, opponent: "Ignited Fury", result: "Win" },
-            { player: "Dubu", position: 3, opponent: "Ignited Fury", result: "Win" },
-            { player: "Trinity", position: 4, opponent: "Ignited Fury", result: "Win" },
-            { player: "Jigz", position: 5, opponent: "Ignited Fury", result: "Win" },
+            { player: "jlanzado", position: 1, opponent: "Ignited Fury", result: "Loss" },
+            { player: "RSulit", position: 2, opponent: "Ignited Fury", result: "Win" },
+            { player: "EBaet", position: 3, opponent: "Ignited Fury", result: "Win" },
+            { player: "JCruz", position: 4, opponent: "Ignited Fury", result: "Win" },
+            { player: "JBrual", position: 5, opponent: "Ignited Fury", result: "Win" },
 
-            { player: "Milky", position: 1, opponent: "BBA Yappie", result: "Loss" },
-            { player: "Migz", position: 2, opponent: "BBA Yappie", result: "Win" },
-            { player: "Karl", position: 3, opponent: "BBA Yappie", result: "Win" },
-            { player: "Jansen", position: 4, opponent: "BBA Yappie", result: "Loss" },
-            { player: "Dubu", position: 5, opponent: "BBA Yappie", result: "Loss" }
+            { player: "JMinosa", position: 1, opponent: "BBA Yappie", result: "Loss" },
+            { player: "MCaibal", position: 2, opponent: "BBA Yappie", result: "Win" },
+            { player: "JRianzares", position: 3, opponent: "BBA Yappie", result: "Win" },
+            { player: "jlirio", position: 4, opponent: "BBA Yappie", result: "Loss" },
+            { player: "EBaet", position: 5, opponent: "BBA Yappie", result: "Loss" }
         ];
+
+        // LOAD FROM LOCALSTORAGE OR FALLBACK TO REAL INITIAL DATA
+        let teamRoster = JSON.parse(localStorage.getItem('beybladeRoster')) || [...initialRoster];
+        let matchHistory = JSON.parse(localStorage.getItem('beybladeMatchHistory')) || [...initialMatches];
+
+        function saveDataToStorage() {
+            localStorage.setItem('beybladeRoster', JSON.stringify(teamRoster));
+            localStorage.setItem('beybladeMatchHistory', JSON.stringify(matchHistory));
+        }
 
         let winLossChart;
 
@@ -251,7 +306,6 @@
             const currentValue = playerSelect.value;
             playerSelect.innerHTML = '';
 
-            // Sort team roster alphabetically
             teamRoster.sort().forEach(name => {
                 const opt = document.createElement('option');
                 opt.value = name;
@@ -259,7 +313,6 @@
                 playerSelect.appendChild(opt);
             });
 
-            // Add option to dynamically register a new blader
             const newOpt = document.createElement('option');
             newOpt.value = "__NEW__";
             newOpt.textContent = "➕ Add New Blader...";
@@ -267,6 +320,36 @@
 
             if (currentValue && teamRoster.includes(currentValue)) {
                 playerSelect.value = currentValue;
+            }
+
+            populateLineupGeneratorDropdowns();
+        }
+
+        function populateLineupGeneratorDropdowns() {
+            const sortedRoster = [...teamRoster].sort();
+            
+            for (let i = 1; i <= 5; i++) {
+                const select = document.getElementById(`lineupSlot${i}`);
+                const currentVal = select.value;
+                select.innerHTML = '';
+
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = '-- Select Blader --';
+                select.appendChild(defaultOpt);
+
+                sortedRoster.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    select.appendChild(opt);
+                });
+
+                if (currentVal && sortedRoster.includes(currentVal)) {
+                    select.value = currentVal;
+                } else {
+                    select.value = '';
+                }
             }
         }
 
@@ -373,6 +456,97 @@
             return lineup;
         }
 
+        function evaluateCustomLineup() {
+            const matrix = getBladerPositionMatrix();
+            const posLabels = ["Slot 1 (Lead)", "Slot 2", "Slot 3", "Slot 4", "Slot 5 (Anchor)"];
+            const selectedLineup = [];
+            let unassignedSlots = [];
+            
+            let totalProbabilities = [];
+
+            for (let i = 1; i <= 5; i++) {
+                const blader = document.getElementById(`lineupSlot${i}`).value;
+                if (!blader) {
+                    unassignedSlots.push(i);
+                    continue;
+                }
+
+                const stats = matrix[blader] ? matrix[blader][i] : null;
+                
+                let winRate = 0.50;
+                let totalMatches = 0;
+                let wins = 0;
+
+                if (stats && stats.total > 0) {
+                    winRate = stats.wins / stats.total;
+                    totalMatches = stats.total;
+                    wins = stats.wins;
+                }
+
+                selectedLineup.push({
+                    slot: i,
+                    label: posLabels[i-1],
+                    blader: blader,
+                    winRate: winRate,
+                    wins: wins,
+                    totalMatches: totalMatches
+                });
+
+                totalProbabilities.push(winRate);
+            }
+
+            if (unassignedSlots.length > 0) {
+                alert(`Please select a blader for all 5 slots before simulating. (Unassigned Slot(s): #${unassignedSlots.join(', #')})`);
+                return;
+            }
+
+            let projectedSetWinRate = calculateBinomialSetWinRate(totalProbabilities);
+            let avgSlotWinRate = (totalProbabilities.reduce((a, b) => a + b, 0) / 5) * 100;
+
+            document.getElementById('projectedSetWinRate').innerText = `${projectedSetWinRate.toFixed(1)}%`;
+            document.getElementById('avgSlotWinRate').innerText = `${avgSlotWinRate.toFixed(1)}%`;
+
+            const breakdownContainer = document.getElementById('lineupSlotBreakdown');
+            breakdownContainer.innerHTML = '';
+
+            selectedLineup.forEach(item => {
+                const percentage = (item.winRate * 100).toFixed(0);
+                const textColor = percentage >= 70 ? 'text-emerald-400' : percentage >= 50 ? 'text-amber-400' : 'text-rose-400';
+                
+                const card = `
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg text-center">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase">${item.label}</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5">${item.blader}</p>
+                        <p class="text-base font-extrabold ${textColor} mt-1">${percentage}%</p>
+                        <p class="text-[10px] text-slate-500">${item.totalMatches > 0 ? `(${item.wins}W - ${item.totalMatches - item.wins}L)` : 'No slot data'}</p>
+                    </div>
+                `;
+                breakdownContainer.innerHTML += card;
+            });
+
+            document.getElementById('lineupEvaluationOutput').classList.remove('hidden');
+        }
+
+        function calculateBinomialSetWinRate(p) {
+            let winProb = 0;
+            for (let mask = 0; mask < (1 << 5); mask++) {
+                let wins = 0;
+                let prob = 1;
+                for (let i = 0; i < 5; i++) {
+                    if ((mask & (1 << i)) !== 0) {
+                        wins++;
+                        prob *= p[i];
+                    } else {
+                        prob *= (1 - p[i]);
+                    }
+                }
+                if (wins >= 3) {
+                    winProb += prob;
+                }
+            }
+            return winProb * 100;
+        }
+
         function calculateTeamSetRecord() {
             let teamWins = 0;
             let teamLosses = 0;
@@ -417,7 +591,6 @@
                 leaderboardBody.innerHTML += row;
             });
 
-            // Render Team Matchups
             const matchups = calculateTeamMatchups();
             const teamMatchupBody = document.getElementById('teamMatchupBody');
             teamMatchupBody.innerHTML = '';
@@ -445,7 +618,6 @@
                 teamMatchupBody.innerHTML += row;
             });
 
-            // Render Position Matrix
             const matrix = getBladerPositionMatrix();
             const matrixBody = document.getElementById('positionMatrixBody');
             matrixBody.innerHTML = '';
@@ -483,7 +655,6 @@
                 matrixBody.innerHTML += row;
             });
 
-            // Render Optimal Lineup
             const optimalLineup = getOptimalLineup(matrix);
             const optimalContainer = document.getElementById('optimalLineupContainer');
             optimalContainer.innerHTML = '';
@@ -589,7 +760,6 @@
             winLossChart.update();
         }
 
-        // Toggle text input if user selects "Add New Blader..."
         document.getElementById('playerSelect').addEventListener('change', (e) => {
             const newPlayerInput = document.getElementById('newPlayerInput');
             if (e.target.value === '__NEW__') {
@@ -603,6 +773,7 @@
             }
         });
 
+        // Submit and Save Match Data Directly to Browser Storage
         document.getElementById('matchForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const playerSelect = document.getElementById('playerSelect');
@@ -622,12 +793,51 @@
 
             matchHistory.push({ player, position, opponent, result });
 
+            // Persist Data to Storage
+            saveDataToStorage();
+
             updateBladerDropdown();
             renderDashboard();
             
             e.target.reset();
             newPlayerInput.classList.add('hidden');
             newPlayerInput.required = false;
+        });
+
+        document.getElementById('evaluateLineupBtn').addEventListener('click', evaluateCustomLineup);
+
+        document.getElementById('autoFillOptimalBtn').addEventListener('click', () => {
+            const matrix = getBladerPositionMatrix();
+            const optimal = getOptimalLineup(matrix);
+
+            for (let i = 1; i <= 5; i++) {
+                if (optimal[i] && optimal[i].name) {
+                    document.getElementById(`lineupSlot${i}`).value = optimal[i].name;
+                }
+            }
+            evaluateCustomLineup();
+        });
+
+        // Export Data Button Feature
+        document.getElementById('exportDataBtn').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(matchHistory, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "beyblade_matches_backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+
+        // Reset to Initial Hardcoded Data Button
+        document.getElementById('resetDataBtn').addEventListener('click', () => {
+            if (confirm("Are you sure you want to reset data back to the default historical matches?")) {
+                teamRoster = [...initialRoster];
+                matchHistory = [...initialMatches];
+                saveDataToStorage();
+                updateBladerDropdown();
+                renderDashboard();
+            }
         });
 
         window.onload = function() {
