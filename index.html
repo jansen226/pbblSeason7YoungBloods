@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBA Youngbloods - Stats & Tournament Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-50 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center font-black text-xl text-white shadow-lg shadow-red-600/30">
+                    BY
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">BBA YOUNGBLOODS</h1>
+                    <p class="text-xs text-slate-400">PBBL S7 Week 1 Analytics</p>
+                </div>
+            </div>
+            <span class="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-3 py-1 rounded-full font-semibold">
+                Week 1 Active
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Stat Overview Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-slate-800/50 border border-slate-700/50 p-5 rounded-xl">
+                <p class="text-slate-400 text-sm font-medium">Total Matches Played</p>
+                <p class="text-3xl font-extrabold mt-1 text-white" id="totalMatches">0</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700/50 p-5 rounded-xl">
+                <p class="text-slate-400 text-sm font-medium">Team Win Rate</p>
+                <p class="text-3xl font-extrabold mt-1 text-emerald-400" id="teamWinRate">0%</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700/50 p-5 rounded-xl">
+                <p class="text-slate-400 text-sm font-medium">Top Performer</p>
+                <p class="text-3xl font-extrabold mt-1 text-amber-400" id="topPlayer">N/A</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700/50 p-5 rounded-xl">
+                <p class="text-slate-400 text-sm font-medium">Overall Game Record</p>
+                <p class="text-xl font-extrabold mt-1 text-cyan-400" id="gameRecord">0W - 0L</p>
+            </div>
+        </section>
+
+        <!-- Charts and Leaderboard Grid -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Leaderboard -->
+            <div class="lg:col-span-2 bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
+                <h2 class="text-lg font-bold text-slate-100 mb-4">Week 1 Roster Leaderboard</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase">
+                                <th class="py-3 px-2">Blader</th>
+                                <th class="py-3 px-2 text-center">Matches Played</th>
+                                <th class="py-3 px-2 text-center">Wins</th>
+                                <th class="py-3 px-2 text-center">Losses</th>
+                                <th class="py-3 px-2 text-right">Win %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody" class="divide-y divide-slate-800 text-sm">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Win/Loss Ratio Chart -->
+            <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6 flex flex-col justify-between">
+                <h2 class="text-lg font-bold text-slate-100 mb-4">Win / Loss Ratio</h2>
+                <div class="relative flex-grow flex items-center justify-center">
+                    <canvas id="winLossChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Record Match Form -->
+        <section class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
+            <h2 class="text-lg font-bold text-slate-100 mb-4">Log Match Result</h2>
+            <form id="matchForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="playerInput" placeholder="Blader Name" required 
+                    class="bg-slate-900 border border-slate-700 text-slate-100 rounded-lg p-2.5 text-sm focus:outline-none focus:border-red-500">
+                <input type="text" id="opponentInput" placeholder="Opponent Name / Team" required 
+                    class="bg-slate-900 border border-slate-700 text-slate-100 rounded-lg p-2.5 text-sm focus:outline-none focus:border-red-500">
+                <select id="resultInput" required 
+                    class="bg-slate-900 border border-slate-700 text-slate-100 rounded-lg p-2.5 text-sm focus:outline-none focus:border-red-500">
+                    <option value="Win">Win</option>
+                    <option value="Loss">Loss</option>
+                </select>
+                <button type="submit" 
+                    class="bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg p-2.5 text-sm transition-colors shadow-lg shadow-red-600/20">
+                    Add Record
+                </button>
+            </form>
+        </section>
+
+        <!-- Match History Log -->
+        <section class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
+            <h2 class="text-lg font-bold text-slate-100 mb-4">Week 1 Match Logs</h2>
+            <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-900 z-10">
+                        <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase">
+                            <th class="py-3 px-2">Blader</th>
+                            <th class="py-3 px-2">Opponent / Team</th>
+                            <th class="py-3 px-2 text-right">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matchLogBody" class="divide-y divide-slate-800 text-sm">
+                        <!-- Populated via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Challonge Live Bracket Embed -->
+        <section class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-100">Live Tournament Bracket (PBBL S7 Pilipinas Cup B)</h2>
+                <a href="https://challonge.com/PBBLS7PILIPINASCUP_B" target="_blank" rel="noopener noreferrer" class="text-xs text-red-400 hover:underline">Open on Challonge ↗</a>
+            </div>
+            <div class="w-full h-[550px] rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                <iframe 
+                    src="https://challonge.com/PBBLS7PILIPINASCUP_B/module" 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    scrolling="auto" 
+                    allowtransparency="true">
+                </iframe>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let matchHistory = [
+            // Game 1
+            { player: "Jassel", opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "Migz", opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "Karl", opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            { player: "Milky", opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "Robin", opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            
+            // Game 2
+            { player: "Robin", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Jassel", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Dubu", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Jansen", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Trinity", opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
+            
+            // Game 3
+            { player: "Dubu", opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Jansen", opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Jigz", opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Trinity", opponent: "Anonymous Bladers PH", result: "Win" },
+            { player: "Karl", opponent: "Anonymous Bladers PH", result: "Loss" },
+
+            // Game 4
+            { player: "Jassel", opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Robin", opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Migz", opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Milky", opponent: "Garuda Phoenix", result: "Loss" },
+            { player: "Jigz", opponent: "Garuda Phoenix", result: "Win" },
+
+            // Game 5
+            { player: "Jassel", opponent: "Ignited Fury", result: "Loss" },
+            { player: "Robin", opponent: "Ignited Fury", result: "Win" },
+            { player: "Dubu", opponent: "Ignited Fury", result: "Win" },
+            { player: "Trinity", opponent: "Ignited Fury", result: "Win" },
+            { player: "Jigz", opponent: "Ignited Fury", result: "Win" },
+
+            // Game 6
+            { player: "Milky", opponent: "BBA Yappie", result: "Loss" },
+            { player: "Migz", opponent: "BBA Yappie", result: "Win" },
+            { player: "Karl", opponent: "BBA Yappie", result: "Loss" },
+            { player: "Jansen", opponent: "BBA Yappie", result: "Loss" },
+            { player: "Dubu", opponent: "BBA Yappie", result: "Loss" }
+        ];
+
+        let winLossChart;
+
+        function getRosterData() {
+            let rosterMap = {};
+
+            matchHistory.forEach(log => {
+                const name = log.player;
+                if (!rosterMap[name]) {
+                    rosterMap[name] = { name: name, matches: 0, wins: 0, losses: 0 };
+                }
+                rosterMap[name].matches += 1;
+                if (log.result === "Win") rosterMap[name].wins += 1;
+                else rosterMap[name].losses += 1;
+            });
+
+            return Object.values(rosterMap);
+        }
+
+        function renderDashboard() {
+            const roster = getRosterData();
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            leaderboardBody.innerHTML = '';
+
+            let totalMatchesCount = 0;
+            let totalWinsCount = 0;
+
+            roster.sort((a, b) => (b.wins / b.matches) - (a.wins / a.matches) || b.wins - a.wins);
+
+            roster.forEach(player => {
+                totalMatchesCount += player.matches;
+                totalWinsCount += player.wins;
+                const winRate = ((player.wins / player.matches) * 100).toFixed(1);
+
+                const row = `
+                    <tr class="hover:bg-slate-800/30">
+                        <td class="py-3 px-2 font-medium text-slate-200">${player.name}</td>
+                        <td class="py-3 px-2 text-center text-slate-300 font-semibold">${player.matches}</td>
+                        <td class="py-3 px-2 text-center text-emerald-400 font-semibold">${player.wins}</td>
+                        <td class="py-3 px-2 text-center text-rose-400 font-semibold">${player.losses}</td>
+                        <td class="py-3 px-2 text-right font-bold text-slate-100">${winRate}%</td>
+                    </tr>
+                `;
+                leaderboardBody.innerHTML += row;
+            });
+
+            const totalLossesCount = totalMatchesCount - totalWinsCount;
+
+            document.getElementById('totalMatches').innerText = totalMatchesCount;
+            document.getElementById('teamWinRate').innerText = totalMatchesCount ? `${((totalWinsCount / totalMatchesCount) * 100).toFixed(1)}%` : '0%';
+            document.getElementById('topPlayer').innerText = roster.length > 0 ? `${roster[0].name} (${((roster[0].wins/roster[0].matches)*100).toFixed(0)}%)` : 'N/A';
+            document.getElementById('gameRecord').innerText = `${totalWinsCount}W - ${totalLossesCount}L`;
+
+            const matchLogBody = document.getElementById('matchLogBody');
+            matchLogBody.innerHTML = '';
+
+            matchHistory.forEach(log => {
+                const badgeClass = log.result === 'Win' 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                    : 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+                const logRow = `
+                    <tr class="hover:bg-slate-800/30">
+                        <td class="py-3 px-2 font-medium text-slate-200">${log.player}</td>
+                        <td class="py-3 px-2 text-slate-400">${log.opponent}</td>
+                        <td class="py-3 px-2 text-right">
+                            <span class="${badgeClass} border text-xs px-2.5 py-0.5 rounded-full font-bold uppercase">
+                                ${log.result}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                matchLogBody.innerHTML += logRow;
+            });
+
+            updateChart(totalWinsCount, totalLossesCount);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('winLossChart').getContext('2d');
+            winLossChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Wins', 'Losses'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function updateChart(wins, losses) {
+            if (!winLossChart) return;
+            winLossChart.data.datasets[0].data = [wins, losses];
+            winLossChart.update();
+        }
+
+        document.getElementById('matchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const player = document.getElementById('playerInput').value;
+            const opponent = document.getElementById('opponentInput').value;
+            const result = document.getElementById('resultInput').value;
+
+            matchHistory.unshift({ player, opponent, result });
+
+            renderDashboard();
+            e.target.reset();
+        });
+
+        initChart();
+        renderDashboard();
+    </script>
+</body>
+</html>
