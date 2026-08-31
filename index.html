@@ -145,19 +145,32 @@
             
             <!-- Input Form -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                <h2 class="text-lg font-bold mb-4 text-slate-200">Add Match</h2>
+                <h2 class="text-lg font-bold mb-4 text-slate-200">Add Match Record</h2>
                 <form id="matchForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Blader</label>
-                        <input id="playerInput" type="text" placeholder="e.g. Jassel" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Blader Name</label>
+                        <select id="playerSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                        <input id="newPlayerInput" type="text" placeholder="Enter new blader name" class="hidden mt-2 w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Opponent / Event</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Blader Position</label>
+                        <select id="positionInput" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                            <option value="1">Slot 1 (Lead)</option>
+                            <option value="2">Slot 2</option>
+                            <option value="3">Slot 3</option>
+                            <option value="4">Slot 4</option>
+                            <option value="5">Slot 5 (Anchor)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Opponent Team</label>
                         <input id="opponentInput" type="text" placeholder="e.g. Garuda Phoenix" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Result</label>
-                        <select id="resultInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <select id="resultInput" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                             <option value="Win">Win</option>
                             <option value="Loss">Loss</option>
                         </select>
@@ -169,13 +182,13 @@
             <!-- Match Logs -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5">
                 <h2 class="text-lg font-bold mb-4 text-slate-200">Recent Logs</h2>
-                <div class="overflow-x-auto max-h-64">
+                <div class="overflow-x-auto max-h-80">
                     <table class="w-full text-left text-sm">
                         <thead class="text-xs text-slate-400 uppercase border-b border-slate-800">
                             <tr>
                                 <th class="pb-3 px-2">Slot</th>
                                 <th class="pb-3 px-2">Blader</th>
-                                <th class="pb-3 px-2">Opponent</th>
+                                <th class="pb-3 px-2">Opponent Team</th>
                                 <th class="pb-3 px-2 text-right">Result</th>
                             </tr>
                         </thead>
@@ -190,45 +203,72 @@
 
     <!-- Script Block -->
     <script>
+        // Master Team Roster list
+        let teamRoster = ["Dubu", "Jassel", "Jansen", "Jigz", "Karl", "Migz", "Milky", "Robin", "Trinity"];
+
         let matchHistory = [
-            { player: "Jassel", opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "Migz", opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "Karl", opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
-            { player: "Milky", opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "Robin", opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            { player: "Jassel", position: 1, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "Migz", position: 2, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "Karl", position: 3, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            { player: "Milky", position: 4, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { player: "Robin", position: 5, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
             
-            { player: "Robin", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Jassel", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Dubu", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Jansen", opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "Trinity", opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
+            { player: "Robin", position: 1, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Jassel", position: 2, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Dubu", position: 3, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Jansen", position: 4, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { player: "Trinity", position: 5, opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
             
-            { player: "Dubu", opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "Jansen", opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "Jigz", opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "Trinity", opponent: "Anonymous Bladers PH", result: "Win" },
-            { player: "Karl", opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Dubu", position: 1, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Jansen", position: 2, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Jigz", position: 3, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { player: "Trinity", position: 4, opponent: "Anonymous Bladers PH", result: "Win" },
+            { player: "Karl", position: 5, opponent: "Anonymous Bladers PH", result: "Loss" },
 
-            { player: "Jassel", opponent: "Garuda Phoenix", result: "Win" },
-            { player: "Robin", opponent: "Garuda Phoenix", result: "Win" },
-            { player: "Migz", opponent: "Garuda Phoenix", result: "Win" },
-            { player: "Milky", opponent: "Garuda Phoenix", result: "Loss" },
-            { player: "Jigz", opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Jassel", position: 1, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Robin", position: 2, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Migz", position: 3, opponent: "Garuda Phoenix", result: "Win" },
+            { player: "Milky", position: 4, opponent: "Garuda Phoenix", result: "Loss" },
+            { player: "Jigz", position: 5, opponent: "Garuda Phoenix", result: "Win" },
 
-            { player: "Jassel", opponent: "Ignited Fury", result: "Loss" },
-            { player: "Robin", opponent: "Ignited Fury", result: "Win" },
-            { player: "Dubu", opponent: "Ignited Fury", result: "Win" },
-            { player: "Trinity", opponent: "Ignited Fury", result: "Win" },
-            { player: "Jigz", opponent: "Ignited Fury", result: "Win" },
+            { player: "Jassel", position: 1, opponent: "Ignited Fury", result: "Loss" },
+            { player: "Robin", position: 2, opponent: "Ignited Fury", result: "Win" },
+            { player: "Dubu", position: 3, opponent: "Ignited Fury", result: "Win" },
+            { player: "Trinity", position: 4, opponent: "Ignited Fury", result: "Win" },
+            { player: "Jigz", position: 5, opponent: "Ignited Fury", result: "Win" },
 
-            { player: "Milky", opponent: "BBA Yappie", result: "Loss" },
-            { player: "Migz", opponent: "BBA Yappie", result: "Win" },
-            { player: "Karl", opponent: "BBA Yappie", result: "Win" },
-            { player: "Jansen", opponent: "BBA Yappie", result: "Loss" },
-            { player: "Dubu", opponent: "BBA Yappie", result: "Loss" }
+            { player: "Milky", position: 1, opponent: "BBA Yappie", result: "Loss" },
+            { player: "Migz", position: 2, opponent: "BBA Yappie", result: "Win" },
+            { player: "Karl", position: 3, opponent: "BBA Yappie", result: "Win" },
+            { player: "Jansen", position: 4, opponent: "BBA Yappie", result: "Loss" },
+            { player: "Dubu", position: 5, opponent: "BBA Yappie", result: "Loss" }
         ];
 
         let winLossChart;
+
+        function updateBladerDropdown() {
+            const playerSelect = document.getElementById('playerSelect');
+            const currentValue = playerSelect.value;
+            playerSelect.innerHTML = '';
+
+            // Sort team roster alphabetically
+            teamRoster.sort().forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                playerSelect.appendChild(opt);
+            });
+
+            // Add option to dynamically register a new blader
+            const newOpt = document.createElement('option');
+            newOpt.value = "__NEW__";
+            newOpt.textContent = "➕ Add New Blader...";
+            playerSelect.appendChild(newOpt);
+
+            if (currentValue && teamRoster.includes(currentValue)) {
+                playerSelect.value = currentValue;
+            }
+        }
 
         function getRosterData() {
             let rosterMap = {};
@@ -265,10 +305,12 @@
         function calculatePositionStats() {
             let positions = { 1: { wins: 0, total: 0 }, 2: { wins: 0, total: 0 }, 3: { wins: 0, total: 0 }, 4: { wins: 0, total: 0 }, 5: { wins: 0, total: 0 } };
             
-            matchHistory.forEach((log, index) => {
-                const pos = (index % 5) + 1;
-                positions[pos].total += 1;
-                if (log.result === "Win") positions[pos].wins += 1;
+            matchHistory.forEach(log => {
+                const pos = Number(log.position);
+                if (positions[pos]) {
+                    positions[pos].total += 1;
+                    if (log.result === "Win") positions[pos].wins += 1;
+                }
             });
 
             return positions;
@@ -277,9 +319,9 @@
         function getBladerPositionMatrix() {
             let matrix = {};
 
-            matchHistory.forEach((log, index) => {
+            matchHistory.forEach(log => {
                 const name = log.player;
-                const pos = (index % 5) + 1;
+                const pos = Number(log.position);
 
                 if (!matrix[name]) {
                     matrix[name] = {
@@ -291,8 +333,10 @@
                     };
                 }
 
-                matrix[name][pos].total += 1;
-                if (log.result === "Win") matrix[name][pos].wins += 1;
+                if (matrix[name][pos]) {
+                    matrix[name][pos].total += 1;
+                    if (log.result === "Win") matrix[name][pos].wins += 1;
+                }
             });
 
             return matrix;
@@ -337,7 +381,7 @@
             for (let i = 0; i < totalSets; i++) {
                 let setWins = 0;
                 for (let j = 0; j < 5; j++) {
-                    if (matchHistory[i * 5 + j].result === 'Win') setWins++;
+                    if (matchHistory[i * 5 + j] && matchHistory[i * 5 + j].result === 'Win') setWins++;
                 }
                 if (setWins >= 3) teamWins++;
                 else teamLosses++;
@@ -494,16 +538,14 @@
             const matchLogBody = document.getElementById('matchLogBody');
             matchLogBody.innerHTML = '';
 
-            matchHistory.forEach((log, idx) => {
+            [...matchHistory].reverse().forEach(log => {
                 const badgeClass = log.result === 'Win' 
                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
                     : 'bg-rose-500/10 text-rose-400 border-rose-500/20';
 
-                const positionNum = (idx % 5) + 1;
-
                 const logRow = `
                     <tr class="hover:bg-slate-800/30">
-                        <td class="py-3 px-2 text-slate-400 font-medium">Slot #${positionNum}</td>
+                        <td class="py-3 px-2 text-slate-400 font-medium">Slot #${log.position}</td>
                         <td class="py-3 px-2 font-medium text-slate-200">${log.player}</td>
                         <td class="py-3 px-2 text-slate-400">${log.opponent}</td>
                         <td class="py-3 px-2 text-right">
@@ -547,19 +589,49 @@
             winLossChart.update();
         }
 
+        // Toggle text input if user selects "Add New Blader..."
+        document.getElementById('playerSelect').addEventListener('change', (e) => {
+            const newPlayerInput = document.getElementById('newPlayerInput');
+            if (e.target.value === '__NEW__') {
+                newPlayerInput.classList.remove('hidden');
+                newPlayerInput.required = true;
+                newPlayerInput.focus();
+            } else {
+                newPlayerInput.classList.add('hidden');
+                newPlayerInput.required = false;
+                newPlayerInput.value = '';
+            }
+        });
+
         document.getElementById('matchForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const player = document.getElementById('playerInput').value;
+            const playerSelect = document.getElementById('playerSelect');
+            const newPlayerInput = document.getElementById('newPlayerInput');
+            
+            let player = playerSelect.value;
+            if (player === '__NEW__') {
+                player = newPlayerInput.value.trim();
+                if (player && !teamRoster.includes(player)) {
+                    teamRoster.push(player);
+                }
+            }
+
+            const position = Number(document.getElementById('positionInput').value);
             const opponent = document.getElementById('opponentInput').value;
             const result = document.getElementById('resultInput').value;
 
-            matchHistory.push({ player, opponent, result });
+            matchHistory.push({ player, position, opponent, result });
 
+            updateBladerDropdown();
             renderDashboard();
+            
             e.target.reset();
+            newPlayerInput.classList.add('hidden');
+            newPlayerInput.required = false;
         });
 
         window.onload = function() {
+            updateBladerDropdown();
             initChart();
             renderDashboard();
         };
