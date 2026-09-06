@@ -396,47 +396,118 @@
         </div>
     </div>
 
-    <script>
-        // ============= GLOBAL CONSTANTS & INITIAL STATE =============
+    <!-- MAIN APP SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            deleteDoc, 
+            doc, 
+            onSnapshot, 
+            query 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBAFWritm27m42n9UMlGevUUf41gMWHw38",
+            authDomain: "teamtracker-7912a.firebaseapp.com",
+            projectId: "teamtracker-7912a",
+            storageBucket: "teamtracker-7912a.firebasestorage.app",
+            messagingSenderId: "1065242200920",
+            appId: "1:1065242200920:web:492eb4837075d04300f32d",
+            measurementId: "G-W4YFHQPMZ9"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        const matchesCollection = collection(db, "matches");
+
+        // App Constants & Default Data
         const posLabels = ["Slot 1 (Lead)", "Slot 2", "Slot 3", "Slot 4", "Slot 5 (Anchor)"];
         const initialRoster = ["EBaet", "JLanzado", "JLirio", "JBrual", "JRianzares", "MCaibal", "JMinosa", "RSulit", "JCruz"];
 
         const initialMatches = [
-            { player: "JLanzado", position: 1, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "MCaibal", position: 2, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "JRianzares", position: 3, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
-            { player: "JMinosa", position: 4, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
-            { player: "RSulit", position: 5, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
-            
-            { player: "RSulit", position: 1, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "JLanzado", position: 2, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "EBaet", position: 3, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "JLirio", position: 4, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
-            { player: "JCruz", position: 5, opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
-            
-            { player: "EBaet", position: 1, opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "JLirio", position: 2, opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "JBrual", position: 3, opponent: "Anonymous Bladers PH", result: "Loss" },
-            { player: "JCruz", position: 4, opponent: "Anonymous Bladers PH", result: "Win" },
-            { player: "JRianzares", position: 5, opponent: "Anonymous Bladers PH", result: "Loss" },
-
-            { player: "JLanzado", position: 1, opponent: "Garuda Phoenix", result: "Win" },
-            { player: "RSulit", position: 2, opponent: "Garuda Phoenix", result: "Win" },
-            { player: "MCaibal", position: 3, opponent: "Garuda Phoenix", result: "Win" },
-            { player: "JMinosa", position: 4, opponent: "Garuda Phoenix", result: "Loss" },
-            { player: "JBrual", position: 5, opponent: "Garuda Phoenix", result: "Win" },
-
-            { player: "JLanzado", position: 1, opponent: "Ignited Fury", result: "Loss" },
-            { player: "RSulit", position: 2, opponent: "Ignited Fury", result: "Win" },
-            { player: "EBaet", position: 3, opponent: "Ignited Fury", result: "Win" },
-            { player: "JCruz", position: 4, opponent: "Ignited Fury", result: "Win" },
-            { player: "JBrual", position: 5, opponent: "Ignited Fury", result: "Win" },
-
-            { player: "JMinosa", position: 1, opponent: "BBA Yappie", result: "Loss" },
-            { player: "MCaibal", position: 2, opponent: "BBA Yappie", result: "Win" },
-            { player: "JRianzares", position: 3, opponent: "BBA Yappie", result: "Win" },
-            { player: "JLirio", position: 4, opponent: "BBA Yappie", result: "Loss" },
-            { player: "EBaet", position: 5, opponent: "BBA Yappie", result: "Loss" }
+            { date: "2026-08-30", player: "JLanzado", position: 1, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { date: "2026-08-30", player: "MCaibal", position: 2, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { date: "2026-08-30", player: "JRianzares", position: 3, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            { date: "2026-08-30", player: "JMinosa", position: 4, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
+            { date: "2026-08-30", player: "RSulit", position: 5, opponent: "HOBBY WORKS CAFE X BNG", result: "Loss" },
+            { date: "2026-08-30", player: "RSulit", position: 1, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { date: "2026-08-30", player: "JLanzado", position: 2, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { date: "2026-08-30", player: "EBaet", position: 3, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { date: "2026-08-30", player: "JLirio", position: 4, opponent: "ICEMATSURI D`SOURCE", result: "Win" },
+            { date: "2026-08-30", player: "JCruz", position: 5, opponent: "ICEMATSURI D`SOURCE", result: "Loss" },
+            { date: "2026-08-30", player: "EBaet", position: 1, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { date: "2026-08-30", player: "JLirio", position: 2, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { date: "2026-08-30", player: "JBrual", position: 3, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { date: "2026-08-30", player: "JCruz", position: 4, opponent: "Anonymous Bladers PH", result: "Win" },
+            { date: "2026-08-30", player: "JRianzares", position: 5, opponent: "Anonymous Bladers PH", result: "Loss" },
+            { date: "2026-08-30", player: "JLanzado", position: 1, opponent: "Garuda Phoenix", result: "Win" },
+            { date: "2026-08-30", player: "RSulit", position: 2, opponent: "Garuda Phoenix", result: "Win" },
+            { date: "2026-08-30", player: "MCaibal", position: 3, opponent: "Garuda Phoenix", result: "Win" },
+            { date: "2026-08-30", player: "JMinosa", position: 4, opponent: "Garuda Phoenix", result: "Loss" },
+            { date: "2026-08-30", player: "JBrual", position: 5, opponent: "Garuda Phoenix", result: "Win" },
+            { date: "2026-08-30", player: "JLanzado", position: 1, opponent: "Ignited Fury", result: "Loss" },
+            { date: "2026-08-30", player: "RSulit", position: 2, opponent: "Ignited Fury", result: "Win" },
+            { date: "2026-08-30", player: "EBaet", position: 3, opponent: "Ignited Fury", result: "Win" },
+            { date: "2026-08-30", player: "JCruz", position: 4, opponent: "Ignited Fury", result: "Win" },
+            { date: "2026-08-30", player: "JBrual", position: 5, opponent: "Ignited Fury", result: "Win" },
+            { date: "2026-08-30", player: "JMinosa", position: 1, opponent: "BBA Yappie", result: "Loss" },
+            { date: "2026-08-30", player: "MCaibal", position: 2, opponent: "BBA Yappie", result: "Win" },
+            { date: "2026-08-30", player: "JRianzares", position: 3, opponent: "BBA Yappie", result: "Win" },
+            { date: "2026-08-30", player: "JLirio", position: 4, opponent: "BBA Yappie", result: "Loss" },
+            { date: "2026-08-30", player: "EBaet", position: 5, opponent: "BBA Yappie", result: "Loss" },
+            { date: "2026-09-06", player: "JLanzado", position: 1, opponent: "Sinflare", result: "Loss" },
+            { date: "2026-09-06", player: "MCaibal", position: 2, opponent: "Sinflare", result: "Win" },
+            { date: "2026-09-06", player: "JCruz", position: 3, opponent: "Sinflare", result: "Win" },
+            { date: "2026-09-06", player: "JMinosa", position: 4, opponent: "Sinflare", result: "Loss" },
+            { date: "2026-09-06", player: "JBrual", position: 5, opponent: "Sinflare", result: "Win" },
+            { date: "2026-09-06", player: "RSulit", position: 1, opponent: "Shinzoku", result: "Win" },
+            { date: "2026-09-06", player: "MCaibal", position: 2, opponent: "Shinzoku", result: "Loss" },
+            { date: "2026-09-06", player: "JCruz", position: 3, opponent: "Shinzoku", result: "Loss" },
+            { date: "2026-09-06", player: "JRianzares", position: 4, opponent: "Shinzoku", result: "Win" },
+            { date: "2026-09-06", player: "JBrual", position: 5, opponent: "Shinzoku", result: "Win" },
+            { date: "2026-09-06", player: "RSulit", position: 1, opponent: "Code Unknown Iris", result: "Win" },
+            { date: "2026-09-06", player: "EBaet", position: 2, opponent: "Code Unknown Iris", result: "Loss" },
+            { date: "2026-09-06", player: "JRianzares", position: 3, opponent: "Code Unknown Iris", result: "Loss" },
+            { date: "2026-09-06", player: "JLirio", position: 4, opponent: "Code Unknown Iris", result: "Win" },
+            { date: "2026-09-06", player: "JBrual", position: 5, opponent: "Code Unknown Iris", result: "Win" },
+            { date: "2026-09-06", player: "RSulit", position: 1, opponent: "J365 Royals", result: "Loss" },
+            { date: "2026-09-06", player: "JLanzado", position: 2, opponent: "J365 Royals", result: "Loss" },
+            { date: "2026-09-06", player: "JLirio", position: 3, opponent: "J365 Royals", result: "Loss" },
+            { date: "2026-09-06", player: "JMinosa", position: 4, opponent: "J365 Royals", result: "Loss" },
+            { date: "2026-09-06", player: "JBrual", position: 5, opponent: "J365 Royals", result: "Win" },
+            { date: "2026-09-06", player: "JLanzado", position: 1, opponent: "SUNACCHI NIDAI", result: "Win" },
+            { date: "2026-09-06", player: "RSulit", position: 2, opponent: "SUNACCHI NIDAI", result: "Loss" },
+            { date: "2026-09-06", player: "MCaibal", position: 3, opponent: "SUNACCHI NIDAI", result: "Loss" },
+            { date: "2026-09-06", player: "JCruz", position: 4, opponent: "SUNACCHI NIDAI", result: "Win" },
+            { date: "2026-09-06", player: "JRianzares", position: 5, opponent: "SUNACCHI NIDAI", result: "Win" },
+            { date: "2026-09-06", player: "JLanzado", position: 1, opponent: "Skyclaw Plus Ultra", result: "Loss" },
+            { date: "2026-09-06", player: "JMinosa", position: 2, opponent: "Skyclaw Plus Ultra", result: "Loss" },
+            { date: "2026-09-06", player: "EBaet", position: 3, opponent: "Skyclaw Plus Ultra", result: "Loss" },
+            { date: "2026-09-06", player: "JLirio", position: 4, opponent: "Skyclaw Plus Ultra", result: "Win" },
+            { date: "2026-09-06", player: "JRianzares", position: 5, opponent: "Skyclaw Plus Ultra", result: "Win" },
+            { date: "2026-09-06", player: "RSulit", position: 1, opponent: "BBA Shirokuro Sharks", result: "Win" },
+            { date: "2026-09-06", player: "JLirio", position: 2, opponent: "BBA Shirokuro Sharks", result: "Win" },
+            { date: "2026-09-06", player: "JRianzares", position: 3, opponent: "BBA Shirokuro Sharks", result: "Win" },
+            { date: "2026-09-06", player: "JCruz", position: 4, opponent: "BBA Shirokuro Sharks", result: "Loss" },
+            { date: "2026-09-06", player: "JBrual", position: 5, opponent: "BBA Shirokuro Sharks", result: "Win" },
+            { date: "2026-09-06", player: "EBaet", position: 1, opponent: "IKG | TCG", result: "Win" },
+            { date: "2026-09-06", player: "MCaibal", position: 2, opponent: "IKG | TCG", result: "Win" },
+            { date: "2026-09-06", player: "JCruz", position: 3, opponent: "IKG | TCG", result: "Loss" },
+            { date: "2026-09-06", player: "JLirio", position: 4, opponent: "IKG | TCG", result: "Loss" },
+            { date: "2026-09-06", player: "JBrual", position: 5, opponent: "IKG | TCG", result: "Win" },
+            { date: "2026-09-06", player: "EBaet", position: 1, opponent: "INVICTUS", result: "Win" },
+            { date: "2026-09-06", player: "MCaibal", position: 2, opponent: "INVICTUS", result: "Win" },
+            { date: "2026-09-06", player: "JMinosa", position: 3, opponent: "INVICTUS", result: "Win" },
+            { date: "2026-09-06", player: "JRianzares", position: 4, opponent: "INVICTUS", result: "Win" },
+            { date: "2026-09-06", player: "JLanzado", position: 5, opponent: "INVICTUS", result: "Loss" }
         ];
 
         let teamRoster = JSON.parse(localStorage.getItem('beybladeRoster')) || [...initialRoster];
@@ -451,7 +522,35 @@
             localStorage.setItem('beybladeUnavailable', JSON.stringify(unavailableBladers));
         }
 
-        // ============= DATA CALCULATIONS =============
+        // Live Firestore Sync with Offline Fallback
+        try {
+            const matchesQuery = query(matchesCollection);
+            onSnapshot(matchesQuery, (snapshot) => {
+                if (!snapshot.empty) {
+                    matchHistory = [];
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        matchHistory.push({
+                            id: docSnap.id,
+                            ...data
+                        });
+                        if (data.player && !teamRoster.includes(data.player)) {
+                            teamRoster.push(data.player);
+                        }
+                    });
+                }
+                updateBladerDropdowns();
+                renderDashboard();
+            }, (error) => {
+                console.warn("Firestore offline or disabled. Running locally.", error);
+                updateBladerDropdowns();
+                renderDashboard();
+            });
+        } catch (err) {
+            console.warn("Using offline local data mode.", err);
+        }
+
+        // Calculation Helpers
         function getBladerPositionMatrix() {
             let matrix = {};
             teamRoster.forEach(name => {
@@ -512,17 +611,23 @@
             return `${count}${lastResult === "Win" ? "W Streak" : "L Streak"}`;
         }
 
-        function deleteMatch(index) {
+        async function deleteMatch(indexOrId) {
             if (confirm("Delete this match log entry?")) {
-                matchHistory.splice(index, 1);
-                saveDataToStorage();
-                renderDashboard();
+                if (typeof indexOrId === 'string') {
+                    try { await deleteDoc(doc(db, "matches", indexOrId)); } catch (e) { console.error(e); }
+                } else {
+                    matchHistory.splice(indexOrId, 1);
+                    saveDataToStorage();
+                    renderDashboard();
+                }
             }
         }
+        window.deleteMatch = deleteMatch;
 
-        // ============= UI RENDERERS =============
+        // UI Renderers
         function renderAvailabilityTracker() {
             const container = document.getElementById('availabilityContainer');
+            if (!container) return;
             container.innerHTML = '';
             teamRoster.sort().forEach(blader => {
                 const isUnavailable = unavailableBladers.includes(blader);
@@ -548,7 +653,9 @@
         }
 
         function renderTrendChart() {
-            const ctx = document.getElementById('trendChart').getContext('2d');
+            const chartElem = document.getElementById('trendChart');
+            if (!chartElem) return;
+            const ctx = chartElem.getContext('2d');
             if (trendChart) trendChart.destroy();
 
             const teamMatchesMap = {};
@@ -572,7 +679,6 @@
             matchOrder.forEach(opponent => {
                 const matchData = teamMatchesMap[opponent];
                 const winRate = ((matchData.wins / matchData.total) * 100).toFixed(1);
-                
                 winPercentages.push(winRate);
                 labels.push(`vs ${opponent}`);
                 matchDetails.push({ wins: matchData.wins, total: matchData.total });
@@ -607,16 +713,8 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { 
-                            min: 0, 
-                            max: 100, 
-                            ticks: { color: '#94a3b8', font: { weight: 'bold' }, callback: function(value) { return value + '%'; } }, 
-                            grid: { color: 'rgba(51, 65, 85, 0.3)' } 
-                        },
-                        x: { 
-                            ticks: { color: '#94a3b8', font: { weight: 'bold' }, maxRotation: 45, minRotation: 0 }, 
-                            grid: { color: 'rgba(51, 65, 85, 0.3)' } 
-                        }
+                        y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { weight: 'bold' }, callback: v => v + '%' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } },
+                        x: { ticks: { color: '#94a3b8', font: { weight: 'bold' }, maxRotation: 45, minRotation: 0 }, grid: { color: 'rgba(51, 65, 85, 0.3)' } }
                     },
                     plugins: { 
                         legend: { display: false },
@@ -630,10 +728,8 @@
                             displayColors: false,
                             callbacks: {
                                 label: function(context) {
-                                    const index = context.dataIndex;
-                                    const detail = matchDetails[index];
-                                    const losses = detail.total - detail.wins;
-                                    return `Win Rate: ${context.raw}% (${detail.wins}W - ${losses}L)`;
+                                    const detail = matchDetails[context.dataIndex];
+                                    return `Win Rate: ${context.raw}% (${detail.wins}W - ${detail.total - detail.wins}L)`;
                                 }
                             }
                         }
@@ -658,26 +754,17 @@
                     if (stats && stats.total > 0) {
                         const winRate = Math.round((stats.wins / stats.total) * 100);
                         const losses = stats.total - stats.wins;
-
-                        let rateColorClass = 'text-amber-400';
-                        if (winRate >= 70) rateColorClass = 'text-emerald-400 glow-text-emerald';
-                        else if (winRate < 50) rateColorClass = 'text-rose-400';
+                        let rateColorClass = winRate >= 70 ? 'text-emerald-400 glow-text-emerald' : winRate < 50 ? 'text-rose-400' : 'text-amber-400';
 
                         rowHtml += `
                             <td class="py-3 px-4 text-center">
                                 <div class="font-black text-xs sm:text-sm ${rateColorClass}">${winRate}%</div>
                                 <div class="text-[10px] text-slate-500 font-bold mt-0.5">(${stats.wins}W-${losses}L)</div>
-                            </td>
-                        `;
+                            </td>`;
                     } else {
-                        rowHtml += `
-                            <td class="py-3 px-4 text-center text-slate-700 font-black text-xs">
-                                —
-                            </td>
-                        `;
+                        rowHtml += `<td class="py-3 px-4 text-center text-slate-700 font-black text-xs">—</td>`;
                     }
                 }
-
                 rowHtml += `</tr>`;
                 matrixBody.innerHTML += rowHtml;
             });
@@ -702,9 +789,7 @@
                     }
                 });
 
-                const winRate = totalMatchesForPos > 0 
-                    ? ((totalWinsForPos / totalMatchesForPos) * 100).toFixed(1) 
-                    : '0.0';
+                const winRate = totalMatchesForPos > 0 ? ((totalWinsForPos / totalMatchesForPos) * 100).toFixed(1) : '0.0';
 
                 positionContainer.innerHTML += `
                     <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between hover:border-slate-700 transition">
@@ -715,13 +800,14 @@
                         <div class="text-right">
                             <p class="text-base font-black ${winRate >= 50 ? 'text-emerald-400 glow-text-emerald' : 'text-rose-400'}">${winRate}%</p>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
         }
 
         function renderFilteredMatches() {
-            const search = document.getElementById('filterSearch').value.toLowerCase();
+            const searchElem = document.getElementById('filterSearch');
+            if (!searchElem) return;
+            const search = searchElem.value.toLowerCase();
             const resultFilter = document.getElementById('filterResult').value;
             const slotFilter = document.getElementById('filterSlot').value;
 
@@ -738,38 +824,31 @@
             });
 
             [...filtered].reverse().forEach(log => {
-                const badgeClass = log.result === 'Win' 
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 glow-text-emerald' 
-                    : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+                const badgeClass = log.result === 'Win' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 glow-text-emerald' : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+                const deleteParam = log.id ? `'${log.id}'` : log.originalIndex;
 
-                const logRow = `
+                matchLogBody.innerHTML += `
                     <tr class="hover:bg-slate-800/40 transition">
                         <td class="py-2.5 px-3 text-slate-400 font-extrabold">Slot #${log.position}</td>
                         <td class="py-2.5 px-3 font-bold text-slate-200">${log.player}</td>
                         <td class="py-2.5 px-3 text-slate-400 font-medium">${log.opponent}</td>
                         <td class="py-2.5 px-3 text-center">
-                            <span class="${badgeClass} border text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase">
-                                ${log.result}
-                            </span>
+                            <span class="${badgeClass} border text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase">${log.result}</span>
                         </td>
                         <td class="py-2.5 px-3 text-right">
-                            <button onclick="deleteMatch(${log.originalIndex})" class="text-slate-600 hover:text-rose-400 font-bold p-1 transition group" title="Delete record">
+                            <button onclick="deleteMatch(${deleteParam})" class="text-slate-600 hover:text-rose-400 font-bold p-1 transition group">
                                 <span class="group-hover:scale-125 inline-block transition-transform">🗑️</span>
                             </button>
                         </td>
-                    </tr>
-                `;
-                matchLogBody.innerHTML += logRow;
+                    </tr>`;
             });
         }
 
         function openBladerModal(bladerName) {
             const matrix = getBladerPositionMatrix();
             const stats = matrix[bladerName];
-            
-            let totalWins = 0;
-            let totalMatches = 0;
-            
+            let totalWins = 0, totalMatches = 0;
+
             for(let p=1; p<=5; p++) {
                 if (stats && stats[p]) {
                     totalWins += stats[p].wins;
@@ -800,12 +879,12 @@
                             <span class="font-black text-slate-200">${rate}${rate !== "—" ? "%" : ""}</span>
                             <span class="text-[10px] text-slate-500 ml-1">(${s.wins}W-${s.total - s.wins}L)</span>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
 
             document.getElementById('bladerModal').classList.remove('hidden');
         }
+        window.openBladerModal = openBladerModal;
 
         function renderDashboard() {
             renderAvailabilityTracker();
@@ -826,54 +905,54 @@
 
             const matrix = getBladerPositionMatrix();
             const leaderboardBody = document.getElementById('leaderboardBody');
-            leaderboardBody.innerHTML = '';
-            const sortedRoster = Object.values(rosterMap).sort((a, b) => (b.wins / b.matches) - (a.wins / a.matches));
+            if (leaderboardBody) {
+                leaderboardBody.innerHTML = '';
+                const sortedRoster = Object.values(rosterMap).sort((a, b) => (b.wins / b.matches) - (a.wins / a.matches));
 
-            sortedRoster.forEach(player => {
-                const isInjured = unavailableBladers.includes(player.name);
-                const winRate = ((player.wins / player.matches) * 100).toFixed(1);
+                sortedRoster.forEach(player => {
+                    const isInjured = unavailableBladers.includes(player.name);
+                    const winRate = ((player.wins / player.matches) * 100).toFixed(1);
 
-                leaderboardBody.innerHTML += `
-                    <tr onclick="openBladerModal('${player.name}')" class="hover:bg-slate-800/50 cursor-pointer transition ${isInjured ? 'opacity-40' : ''}">
-                        <td class="py-3 px-3 font-bold text-slate-200 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${isInjured ? 'bg-rose-500' : 'bg-emerald-400 glow-border-emerald'}"></span>
-                            ${player.name} ${isInjured ? '<span class="text-[10px] text-rose-400 font-extrabold">(Offline)</span>' : ''}
-                        </td>
-                        <td class="py-3 px-3 text-center text-slate-300 font-bold">${player.matches}</td>
-                        <td class="py-3 px-3 text-center text-emerald-400 font-black">${player.wins}</td>
-                        <td class="py-3 px-3 text-center text-rose-400 font-black">${player.losses}</td>
-                        <td class="py-3 px-3 text-right font-black text-slate-100">${winRate}%</td>
-                    </tr>
-                `;
-            });
+                    leaderboardBody.innerHTML += `
+                        <tr onclick="openBladerModal('${player.name}')" class="hover:bg-slate-800/50 cursor-pointer transition ${isInjured ? 'opacity-40' : ''}">
+                            <td class="py-3 px-3 font-bold text-slate-200 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full ${isInjured ? 'bg-rose-500' : 'bg-emerald-400 glow-border-emerald'}"></span>
+                                ${player.name} ${isInjured ? '<span class="text-[10px] text-rose-400 font-extrabold">(Offline)</span>' : ''}
+                            </td>
+                            <td class="py-3 px-3 text-center text-slate-300 font-bold">${player.matches}</td>
+                            <td class="py-3 px-3 text-center text-emerald-400 font-black">${player.wins}</td>
+                            <td class="py-3 px-3 text-center text-rose-400 font-black">${player.losses}</td>
+                            <td class="py-3 px-3 text-right font-black text-slate-100">${winRate}%</td>
+                        </tr>`;
+                });
+            }
 
-            // Top Stats
             const totalMatches = matchHistory.length;
-            document.getElementById('totalMatches').innerText = totalMatches;
-            document.getElementById('teamWinRate').innerText = totalMatches ? `${((totalWinsCount / totalMatches) * 100).toFixed(1)}%` : '0%';
-            document.getElementById('gameRecord').innerText = `${totalWinsCount}W - ${totalMatches - totalWinsCount}L`;
-            document.getElementById('teamStreak').innerText = calculateStreak();
+            if (document.getElementById('totalMatches')) {
+                document.getElementById('totalMatches').innerText = totalMatches;
+                document.getElementById('teamWinRate').innerText = totalMatches ? `${((totalWinsCount / totalMatches) * 100).toFixed(1)}%` : '0%';
+                document.getElementById('gameRecord').innerText = `${totalWinsCount}W - ${totalMatches - totalWinsCount}L`;
+                document.getElementById('teamStreak').innerText = calculateStreak();
+            }
 
-            // Optimal Lineup
             const optimal = getOptimalLineup(matrix, true);
             const optimalContainer = document.getElementById('optimalLineupContainer');
-            optimalContainer.innerHTML = '';
-
-            for (let p = 1; p <= 5; p++) {
-                const best = optimal[p];
-                optimalContainer.innerHTML += best ? `
-                    <div class="bg-slate-950/90 border border-emerald-500/30 p-3.5 rounded-xl text-center shadow-lg hover:border-emerald-400 transition">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider">${posLabels[p-1]}</p>
-                        <p class="text-sm font-black text-emerald-400 glow-text-emerald mt-1">${best.name}</p>
-                        <p class="text-xs text-slate-200 font-extrabold mt-0.5">${best.rate}% Win Rate</p>
-                        <p class="text-[10px] text-slate-500">(${best.wins}W - ${best.total - best.wins}L)</p>
-                    </div>
-                ` : `
-                    <div class="bg-slate-950/50 border border-slate-800 p-3.5 rounded-xl text-center">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-wider">${posLabels[p-1]}</p>
-                        <p class="text-xs text-slate-600 mt-2 font-bold">No Active Blader</p>
-                    </div>
-                `;
+            if (optimalContainer) {
+                optimalContainer.innerHTML = '';
+                for (let p = 1; p <= 5; p++) {
+                    const best = optimal[p];
+                    optimalContainer.innerHTML += best ? `
+                        <div class="bg-slate-950/90 border border-emerald-500/30 p-3.5 rounded-xl text-center shadow-lg hover:border-emerald-400 transition">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider">${posLabels[p-1]}</p>
+                            <p class="text-sm font-black text-emerald-400 glow-text-emerald mt-1">${best.name}</p>
+                            <p class="text-xs text-slate-200 font-extrabold mt-0.5">${best.rate}% Win Rate</p>
+                            <p class="text-[10px] text-slate-500">(${best.wins}W - ${best.total - best.wins}L)</p>
+                        </div>` : `
+                        <div class="bg-slate-950/50 border border-slate-800 p-3.5 rounded-xl text-center">
+                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-wider">${posLabels[p-1]}</p>
+                            <p class="text-xs text-slate-600 mt-2 font-bold">No Active Blader</p>
+                        </div>`;
+                }
             }
 
             renderPositionMatrixTable();
@@ -883,7 +962,6 @@
             updateWinLossChart(totalWinsCount, totalMatches - totalWinsCount);
         }
 
-        // ============= SIMULATOR & CALCULATORS =============
         function evaluateCustomLineup() {
             const matrix = getBladerPositionMatrix();
             let totalProbabilities = [];
@@ -919,8 +997,7 @@
                         <p class="text-xs font-bold text-slate-200 mt-0.5">${item.blader}</p>
                         <p class="text-base font-black ${textColor} mt-1">${percentage}%</p>
                         <p class="text-[10px] text-slate-500">${item.totalMatches > 0 ? `(${item.wins}W - ${item.totalMatches - item.wins}L)` : 'No slot data'}</p>
-                    </div>
-                `;
+                    </div>`;
             });
             document.getElementById('lineupEvaluationOutput').classList.remove('hidden');
         }
@@ -940,7 +1017,9 @@
         }
 
         function updateWinLossChart(wins, losses) {
-            const ctx = document.getElementById('winLossChart').getContext('2d');
+            const elem = document.getElementById('winLossChart');
+            if (!elem) return;
+            const ctx = elem.getContext('2d');
             if (winLossChart) winLossChart.destroy();
             winLossChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -958,10 +1037,7 @@
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { 
-                        legend: { 
-                            position: 'bottom', 
-                            labels: { color: '#94a3b8', font: { weight: 'bold', size: 11 } } 
-                        } 
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { weight: 'bold', size: 11 } } } 
                     },
                     cutout: '70%'
                 }
@@ -970,6 +1046,7 @@
 
         function updateBladerDropdowns() {
             const playerSelect = document.getElementById('playerSelect');
+            if (!playerSelect) return;
             playerSelect.innerHTML = '';
             teamRoster.sort().forEach(name => {
                 playerSelect.innerHTML += `<option value="${name}">${name}</option>`;
@@ -978,101 +1055,109 @@
 
             for (let i = 1; i <= 5; i++) {
                 const select = document.getElementById(`lineupSlot${i}`);
-                select.innerHTML = '<option value="">-- Select Blader --</option>';
-                teamRoster.sort().forEach(name => {
-                    const isInjured = unavailableBladers.includes(name);
-                    select.innerHTML += `<option value="${name}">${name} ${isInjured ? '(Offline)' : ''}</option>`;
-                });
+                if (select) {
+                    select.innerHTML = '<option value="">-- Select Blader --</option>';
+                    teamRoster.sort().forEach(name => {
+                        const isInjured = unavailableBladers.includes(name);
+                        select.innerHTML += `<option value="${name}">${name} ${isInjured ? '(Offline)' : ''}</option>`;
+                    });
+                }
             }
         }
 
-        // ============= EXPORT HANDLERS =============
-        document.getElementById('exportCsvBtn').addEventListener('click', () => {
-            let csvContent = "data:text/csv;charset=utf-8,Slot,Blader,Opponent,Result\n";
-            matchHistory.forEach(row => {
-                csvContent += `${row.position},"${row.player}","${row.opponent}",${row.result}\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `beyblade_matches_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        });
-
-        document.getElementById('exportPdfBtn').addEventListener('click', () => { window.print(); });
-
-        // ============= EVENT LISTENERS =============
-        document.getElementById('filterSearch').addEventListener('input', renderFilteredMatches);
-        document.getElementById('filterResult').addEventListener('change', renderFilteredMatches);
-        document.getElementById('filterSlot').addEventListener('change', renderFilteredMatches);
-
-        document.getElementById('evaluateLineupBtn').addEventListener('click', evaluateCustomLineup);
-        document.getElementById('autoFillOptimalBtn').addEventListener('click', () => {
-            const matrix = getBladerPositionMatrix();
-            const optimal = getOptimalLineup(matrix, true);
-            for (let i = 1; i <= 5; i++) {
-                if (optimal[i]) document.getElementById(`lineupSlot${i}`).value = optimal[i].name;
-            }
-            evaluateCustomLineup();
-        });
-
-        document.getElementById('playerSelect').addEventListener('change', (e) => {
-            const newPlayerInput = document.getElementById('newPlayerInput');
-            if (e.target.value === '__NEW__') {
-                newPlayerInput.classList.remove('hidden');
-                newPlayerInput.required = true;
-            } else {
-                newPlayerInput.classList.add('hidden');
-                newPlayerInput.required = false;
-            }
-        });
-
-        document.getElementById('matchForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const playerSelect = document.getElementById('playerSelect');
-            const newPlayerInput = document.getElementById('newPlayerInput');
-            let player = playerSelect.value === '__NEW__' ? newPlayerInput.value.trim() : playerSelect.value;
-
-            if (!player) return;
-            if (!teamRoster.includes(player)) teamRoster.push(player);
-
-            matchHistory.push({
-                player: player,
-                position: Number(document.getElementById('positionInput').value),
-                opponent: document.getElementById('opponentInput').value.trim(),
-                result: document.getElementById('resultInput').value
-            });
-
-            saveDataToStorage();
+        // Initialize DOM Event Listeners after document loads safely
+        document.addEventListener('DOMContentLoaded', () => {
             updateBladerDropdowns();
             renderDashboard();
 
-            document.getElementById('opponentInput').value = '';
-            newPlayerInput.value = '';
-            newPlayerInput.classList.add('hidden');
-        });
+            document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
+                let csvContent = "data:text/csv;charset=utf-8,Slot,Blader,Opponent,Result\n";
+                matchHistory.forEach(row => {
+                    csvContent += `${row.position},"${row.player}","${row.opponent}",${row.result}\n`;
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `beyblade_matches_${new Date().toISOString().slice(0, 10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            });
 
-        document.getElementById('resetDataBtn').addEventListener('click', () => {
-            if (confirm("Reset application data to defaults?")) {
-                teamRoster = [...initialRoster];
-                matchHistory = [...initialMatches];
-                unavailableBladers = [];
-                saveDataToStorage();
+            document.getElementById('exportPdfBtn')?.addEventListener('click', () => { window.print(); });
+
+            document.getElementById('filterSearch')?.addEventListener('input', renderFilteredMatches);
+            document.getElementById('filterResult')?.addEventListener('change', renderFilteredMatches);
+            document.getElementById('filterSlot')?.addEventListener('change', renderFilteredMatches);
+
+            document.getElementById('evaluateLineupBtn')?.addEventListener('click', evaluateCustomLineup);
+            document.getElementById('autoFillOptimalBtn')?.addEventListener('click', () => {
+                const matrix = getBladerPositionMatrix();
+                const optimal = getOptimalLineup(matrix, true);
+                for (let i = 1; i <= 5; i++) {
+                    if (optimal[i]) document.getElementById(`lineupSlot${i}`).value = optimal[i].name;
+                }
+                evaluateCustomLineup();
+            });
+
+            document.getElementById('playerSelect')?.addEventListener('change', (e) => {
+                const newPlayerInput = document.getElementById('newPlayerInput');
+                if (e.target.value === '__NEW__') {
+                    newPlayerInput.classList.remove('hidden');
+                    newPlayerInput.required = true;
+                } else {
+                    newPlayerInput.classList.add('hidden');
+                    newPlayerInput.required = false;
+                }
+            });
+
+            document.getElementById('matchForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const playerSelect = document.getElementById('playerSelect');
+                const newPlayerInput = document.getElementById('newPlayerInput');
+                let player = playerSelect.value === '__NEW__' ? newPlayerInput.value.trim() : playerSelect.value;
+
+                if (!player) return;
+                if (!teamRoster.includes(player)) teamRoster.push(player);
+
+                const newMatch = {
+                    date: new Date().toISOString().slice(0, 10),
+                    player: player,
+                    position: Number(document.getElementById('positionInput').value),
+                    opponent: document.getElementById('opponentInput').value.trim(),
+                    result: document.getElementById('resultInput').value
+                };
+
+                try {
+                    await addDoc(matchesCollection, newMatch);
+                } catch (err) {
+                    console.warn("Could not save to Cloud Firestore, storing locally.", err);
+                    matchHistory.push(newMatch);
+                    saveDataToStorage();
+                }
+
                 updateBladerDropdowns();
                 renderDashboard();
-            }
-        });
 
-        document.getElementById('closeModalBtn').addEventListener('click', () => {
-            document.getElementById('bladerModal').classList.add('hidden');
-        });
+                document.getElementById('opponentInput').value = '';
+                newPlayerInput.value = '';
+                newPlayerInput.classList.add('hidden');
+            });
 
-        // Initial Initialization
-        window.addEventListener('load', () => {
-            updateBladerDropdowns();
-            renderDashboard();
+            document.getElementById('resetDataBtn')?.addEventListener('click', () => {
+                if (confirm("Reset application data to defaults?")) {
+                    teamRoster = [...initialRoster];
+                    matchHistory = [...initialMatches];
+                    unavailableBladers = [];
+                    saveDataToStorage();
+                    updateBladerDropdowns();
+                    renderDashboard();
+                }
+            });
+
+            document.getElementById('closeModalBtn')?.addEventListener('click', () => {
+                document.getElementById('bladerModal').classList.add('hidden');
+            });
         });
     </script>
 </body>
