@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import BeybladeTracker from './BeybladeTracker';
-import { seedInitialMatchesIfEmpty } from './firebase';
 
 function App() {
-  useEffect(() => {
-    seedInitialMatchesIfEmpty();
-  }, []);
-
   return (
-    <div>
+    <div className="min-h-screen bg-slate-900 text-white">
       <BeybladeTracker />
     </div>
   );
