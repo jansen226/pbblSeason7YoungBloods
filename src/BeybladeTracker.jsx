@@ -47,7 +47,7 @@ ChartJS.register(
 );
 
 const POS_LABELS = ["Slot 1 (Lead)", "Slot 2", "Slot 3", "Slot 4", "Slot 5 (Anchor)"];
-const INITIAL_ROSTER = ["EBaet", "JLanzado", "JLirio", "JBrual", "JRianzares", "MCaibal", "JMinosa", "RSulit", "JCruz"];
+const INITIAL_ROSTER = ["Bry", "Jiro", "DYLANX", "DALYU", "IkongJZM", "Arc", "Drejers", "SenJudes", "Juwi","Ulan","Zard X", "Miguel"];
 
 // const INITIAL_MATCHES = [
 //   { date: "2026-08-30", player: "JLanzado", position: 1, opponent: "HOBBY WORKS CAFE X BNG", result: "Win" },
