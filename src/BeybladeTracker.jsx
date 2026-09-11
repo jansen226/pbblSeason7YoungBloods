@@ -941,7 +941,7 @@ export default function BeybladeTracker() {
             <p className="text-xs text-slate-400 mb-4">PBBL S7 Pilipinas Cup B</p>
               <div className="overflow-hidden rounded-xl border border-slate-800/80 bg-slate-950">
               <iframe 
-                src="https://challonge.com/PBBLS7PILIPINASCUP_B/module" 
+                src="https://challonge.com/PBBLS7PILIPINASCUP_D/module" 
                 width="100%" 
                 height="320" 
                 className="border-0"
